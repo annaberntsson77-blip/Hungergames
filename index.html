@@ -184,7 +184,7 @@
     el('#gameInput').value = GAME;
     el('#gameCode').textContent = GAME;
 
-    el('#useGameBtn').addEventListener('click', ()=>{
+    el('#useGameBtn').addEventListener('click', async ()=>{
       const v = el('#gameInput').value.trim().toUpperCase().replace(/[^A-Z0-9\-]/g,'');
       if(!v) return;
       GAME = v;
@@ -192,8 +192,10 @@
       history.replaceState(null,'', url.toString());
       el('#gameCode').textContent = GAME;
       updateShareLink();
+      await ensureHeaderRow();
       subscribeRealtime();
-      loadAll();
+      await loadHeaders();
+      await loadTeams();
     });
 
     function updateShareLink(){
@@ -221,7 +223,10 @@
 
     el('#saveHeaders').addEventListener('click', async ()=>{
       const payload = { game: GAME, h1: el('#h1').value||null, h2: el('#h2').value||null, h3: el('#h3').value||null, h4: el('#h4').value||null, h5: el('#h5').value||null };
-      await supabase.from('headers').upsert(payload, { onConflict: 'game' });
+      const { error } = await supabase.from('headers').upsert(payload, { onConflict: 'game' });
+      if(error){ console.error(error); alert('Kunde inte spara grennamn.'); }
+      await loadHeaders();
+    });
     });
 
     async function loadTeams(){
@@ -255,10 +260,7 @@
         console.error('Insert error:', error);
         alert('Kunde inte lägga till lag. Kontrollera att tabellen "teams" finns, RLS-policys är satta och Realtime är påslaget.');
       }
-      // Fallback: ladda om listan direkt, ifall Realtime ej är aktiverat
       await loadTeams();
-    });
-      // Realtime uppdaterar alla, inklusive oss
     });
 
     tbody.addEventListener('input', debounce(async (ev)=>{
