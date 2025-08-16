@@ -226,8 +226,7 @@
       const { error } = await supabase.from('headers').upsert(payload, { onConflict: 'game' });
       if(error){ console.error(error); alert('Kunde inte spara grennamn.'); }
       await loadHeaders();
-    });
-    });
+    );
 
     async function loadTeams(){
       const { data, error } = await supabase.from('teams').select('*').eq('game', GAME);
