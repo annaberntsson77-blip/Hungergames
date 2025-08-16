@@ -3,53 +3,64 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>5‑kamp – Poäng & Lag (Realtime)</title>
+  <title>5-kamp – Poäng & Lag (Realtime + Diagnostik)</title>
   <style>
     :root {
-      --bg: #0f172a; --panel:#111827; --muted:#94a3b8; --text:#e5e7eb; --border:#1f2937; --card:#0b1220;
-      --ok:#22c55e; --info:#06b6d4; --warn:#f59e0b; --danger:#ef4444;
+      --bg:#0b1220; --panel:#0f172a; --muted:#94a3b8; --text:#e5e7eb; --border:#1f2937; --card:#0b1424;
+      --ok:#22c55e; --info:#06b6d4; --warn:#f59e0b; --danger:#ef4444; --silver:#9ca3af; --bronze:#d97706; --gold:#facc15;
     }
     *{box-sizing:border-box}
-    body{margin:0;background:#0b1220;color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Noto Sans",Arial}
+    body{margin:0;background:radial-gradient(1200px 600px at 10% -10%, #0b1424 10%, #0b1220 50%, #0a0f1f 100%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Noto Sans",Arial}
     .wrap{max-width:1100px;margin:0 auto;padding:18px}
     h1{margin:10px 0 8px;font-size:clamp(22px,2.6vw,34px)}
     .sub{color:var(--muted);font-size:14px}
-    .grid{display:grid;grid-template-columns:1fr 320px;gap:18px}
+    .grid{display:grid;grid-template-columns:1fr 340px;gap:18px}
     @media (max-width:980px){.grid{grid-template-columns:1fr}}
     .card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));border:1px solid var(--border);border-radius:14px}
     .controls{padding:12px;display:flex;flex-wrap:wrap;gap:8px}
-    input[type="text"],input[type="number"]{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:9px 10px}
+    input[type="text"],input[type="number"],textarea{background:var(--card);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:9px 10px}
     .btn{background:var(--panel);color:var(--text);border:1px solid var(--border);border-radius:10px;padding:9px 12px;cursor:pointer}
     .btn.primary{background:linear-gradient(90deg,var(--ok),var(--info));border:none;color:#052012;font-weight:600}
+    .btn.warn{background:#2a1a00;border-color:#7a4d00;color:#ffdd9a}
+    .btn.danger{background:#2a0b0b;border-color:#7a1f1f;color:#ffc0c0}
     .table-wrap{overflow:auto;border-top-left-radius:14px;border-top-right-radius:14px}
     table{width:100%;border-collapse:collapse;min-width:760px}
     thead{background:#0a1322}
     th,td{padding:10px 12px;border-bottom:1px solid var(--border);text-align:left;font-size:14px}
     .rank{width:52px;text-align:center;color:#a3e635;font-weight:700}
     .input-pts{width:70px;text-align:right}
+    .small{color:var(--muted);font-size:12px}
+    code{background:#091626;border:1px solid #0b2344;border-radius:6px;padding:2px 6px}
     #scoreSummary{margin-bottom:16px;padding:12px;background:rgba(255,255,255,0.05);border-radius:12px}
     #scoreSummary h3{margin:0 0 8px;font-size:16px}
     #scoreSummary ul{list-style:none;padding:0;margin:0}
     #scoreSummary li{padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.1)}
     #scoreSummary li:last-child{border-bottom:none}
-    #scoreSummary li.first-place{font-weight:700;color:#facc15}
-    #scoreSummary li.first-place::before{content:"🥇 ";}
-    #scoreSummary li.second-place{font-weight:700;color:#9ca3af}
-    #scoreSummary li.second-place::before{content:"🥈 ";}
-    #scoreSummary li.third-place{font-weight:700;color:#d97706}
-    #scoreSummary li.third-place::before{content:"🥉 ";}
+    #scoreSummary li.first-place{font-weight:700;color:var(--gold)} #scoreSummary li.first-place::before{content:"🥇 ";}
+    #scoreSummary li.second-place{font-weight:700;color:var(--silver)} #scoreSummary li.second-place::before{content:"🥈 ";}
+    #scoreSummary li.third-place{font-weight:700;color:var(--bronze)} #scoreSummary li.third-place::before{content:"🥉 ";}
     #detailsHeader{margin:10px 0 6px;font-size:18px;font-weight:700}
-    .side{padding:14px}
-    .small{color:var(--muted);font-size:12px}
-    code{background:#091626;border:1px solid #0b2344;border-radius:6px;padding:2px 6px}
+    #diag{display:none;margin:0 0 12px;padding:10px;border:1px solid #7a1f1f;background:#2a0b0b;color:#ffd0d0;border-radius:10px}
+    #diag .row{margin-top:6px}
+    #diag .badge{display:inline-flex;gap:6px;align-items:center;font-size:12px;background:#3b0f0f;border:1px solid #7a1f1f;border-radius:999px;padding:2px 8px}
+    #diag pre{white-space:pre-wrap;word-break:break-word;background:#1a0f13;border:1px solid #4b1f24;border-radius:8px;padding:8px;color:#ffdede;max-height:240px;overflow:auto}
+    #diagnostics{margin-top:14px}
+    #diagLog{background:#0b1628;border:1px solid #0c2a4b;border-radius:8px;padding:8px;color:#cfe8ff;max-height:220px;overflow:auto}
   </style>
 </head>
 <body>
   <div class="wrap">
-    <h1>5‑kamp · Poängräknare <span class="small">(realtid via Supabase)</span></h1>
-    <div class="sub">Dela samma <em>spelkod</em> så synkas allt mellan alla enheter. Du kan byta grennamn i panelen.</div>
+    <h1>5-kamp · Poängräknare <span class="small">(realtid via Supabase)</span></h1>
+    <div class="sub">Dela samma <em>spelkod</em> så synkas allt mellan enheter. Byt grennamn i panelen. Nu med bättre felsökning.</div>
 
-    <!-- Totalsummor över tabellen -->
+    <div id="diag" class="card">
+      <div><strong>⚠️ Ett fel inträffade</strong> · <span id="diagCtx" class="badge">context: n/a</span></div>
+      <div class="row small">Kod: <code id="diagCode">-</code> · Status: <code id="diagStatus">-</code></div>
+      <div class="row">Meddelande: <span id="diagMsg">-</span></div>
+      <div class="row"><details><summary class="small">Detaljer</summary><pre id="diagDetails">(tomt)</pre></details></div>
+      <div class="row"><button class="btn" id="diagHide">Dölj</button></div>
+    </div>
+
     <div id="scoreSummary" class="card">
       <h3>Totalsummor</h3>
       <ul id="summaryList"></ul>
@@ -84,7 +95,7 @@
         </div>
       </section>
 
-      <aside class="card side">
+      <aside class="card" style="padding:14px">
         <h3>Spelkod & delning</h3>
         <div class="small">Använd samma kod på alla enheter för att dela omgång.</div>
         <div style="display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:6px">
@@ -94,7 +105,7 @@
         <div class="small" style="margin-top:6px">Länk att dela: <div><code id="shareLink"></code></div></div>
 
         <h3 style="margin-top:14px">Byt namn på grenar</h3>
-        <div class="small">Sparas för denna spelkod.</div>
+        <div class="small">Sparas per spelkod.</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
           <input id="h1" class="input-pts" placeholder="Gren 1" />
           <input id="h2" class="input-pts" placeholder="Gren 2" />
@@ -104,16 +115,30 @@
           <button class="btn" id="saveHeaders">Spara namn</button>
         </div>
 
-        <h3 style="margin-top:14px">QR‑kod</h3>
+        <h3 style="margin-top:14px">QR-kod</h3>
         <div class="small">Skapa QR för delningslänken.</div>
-        <button class="btn" id="genQrBtn" style="margin-top:6px">Skapa QR‑kod</button>
+        <button class="btn" id="genQrBtn" style="margin-top:6px">Skapa QR-kod</button>
         <div id="qrcode" style="background:#fff;padding:10px;border-radius:10px;margin-top:8px;display:grid;place-items:center"></div>
         <button class="btn" id="downloadQrBtn" disabled>Ladda ner QR (PNG)</button>
+
+        <div id="diagnostics">
+          <h3 style="margin-top:16px">Diagnostik</h3>
+          <div class="small">Snabbtester mot databasen (skapar/ändrar i <code>DEBUG</code>-omgången). Dessa är våra testfall.</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0">
+            <button class="btn" id="testSelect">Test SELECT (teams)</button>
+            <button class="btn" id="testInsert">Test INSERT (teams)</button>
+            <button class="btn" id="testUpdate">Test UPDATE (teams)</button>
+            <button class="btn" id="testDelete">Test DELETE (teams)</button>
+            <button class="btn" id="testHdrUpsert">Test UPSERT (headers)</button>
+            <button class="btn" id="testHdrSelect">Test SELECT (headers)</button>
+            <button class="btn warn" id="clearDiag">Rensa logg</button>
+          </div>
+          <pre id="diagLog"></pre>
+        </div>
       </aside>
     </div>
   </div>
 
-  <!-- QR (via QuickChart bild) -->
   <script>
     function drawQR(text, target){
       const c=document.createElement('canvas'); c.width=c.height=260; const ctx=c.getContext('2d');
@@ -126,13 +151,11 @@
     }
   </script>
 
-  <!-- Supabase JS -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // ====== KONFIGURATION: Fyll i dina Supabase-detaljer ======
-    const SUPABASE_URL = 'https://fauzomdmcpxiqibpivbx.supabase.co';https://fauzomdmcpxiqibpivbx.supabase.co
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhdXpvbWRtY3B4aXFpYnBpdmJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUzNzA1MDUsImV4cCI6MjA3MDk0NjUwNX0.GveDfZO1KLnaQ5F_kmsOuWMYlrFIJEwR9F7pNtgksnw';
-    // ==========================================================
+    // === SUPABASE KONFIG (RÄTTAD RAD) ===
+    const SUPABASE_URL = 'https://fauzomdmcpxiqibpivbx.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhdXpvbWRtY3B4aXFpYnBpdmJ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUzNzA1MDUsImV4cCI6MjA3MDk0NjUwNX0.GveDfZO1KLnaQ5F_kmsOuWMYlrFIJEwR9F7pNtgksnw'; // <-- fyll i
 
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false } });
 
@@ -141,7 +164,30 @@
     const tbody = el('#tbody');
     const summaryList = el('#summaryList');
 
-    // Spelkod från URL (?game=KOD) eller skapa ny
+    // Felhantering
+    const diag = { box: el('#diag'), ctx: el('#diagCtx'), code: el('#diagCode'), status: el('#diagStatus'), msg: el('#diagMsg'), details: el('#diagDetails') };
+    el('#diagHide').addEventListener('click', ()=> diag.box.style.display='none');
+    function safeStringify(obj){ try{ return JSON.stringify(obj, Object.getOwnPropertyNames(obj), 2) }catch(e){ return String(obj) } }
+    function reportError(error, context){
+      if(!error) return;
+      console.error('Supabase error in', context, error);
+      diag.ctx.textContent = `context: ${context}`;
+      diag.code.textContent = error.code || '-';
+      diag.status.textContent = error.status || '-';
+      diag.msg.textContent = error.message || error.error_description || '(okänt fel)';
+      const extra = { details: error.details, hint: error.hint, name: error.name };
+      diag.details.textContent = safeStringify(extra);
+      diag.box.style.display = 'block';
+    }
+    async function sb(promise, context){
+      const { data, error } = await promise;
+      if(error) reportError(error, context);
+      return { data, error };
+    }
+    window.addEventListener('error', (e)=> reportError({ message: e.message, stack: e.error?.stack }, 'window.onerror'));
+    window.addEventListener('unhandledrejection', (e)=> reportError(e.reason || { message: String(e.reason) }, 'unhandledrejection'));
+
+    // Spelkod
     const url = new URL(location.href);
     function randomCode(){ return Math.random().toString(36).toUpperCase().replace(/[^A-Z0-9]/g,'').slice(2,8) }
     let GAME = url.searchParams.get('game') || randomCode();
@@ -149,12 +195,12 @@
     el('#gameInput').value = GAME;
     updateShareLink();
 
-    // --- Hjälpare ---
-    function escapeHtml(str=''){ return str.replace(/[&<>\"]/g, s=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[s])); }
+    // Hjälpare
+    function escapeHtml(str=''){ return str.replace(/[&<>"]/g, s=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[s])); }
     function teamTotal(t){ return (t.p1|0)+(t.p2|0)+(t.p3|0)+(t.p4|0)+(t.p5|0); }
     function debounce(fn,ms){ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a),ms) }; }
 
-    // --- UI wiring ---
+    // UI
     el('#useGameBtn').addEventListener('click', async ()=>{
       const v = el('#gameInput').value.trim().toUpperCase().replace(/[^A-Z0-9\-]/g,'');
       if(!v) return; GAME=v; el('#gameCode').textContent=GAME;
@@ -165,28 +211,25 @@
     el('#addTeamBtn').addEventListener('click', async ()=>{
       const name = el('#teamName').value.trim() || `Lag ${Math.floor(Math.random()*90+10)}`;
       el('#teamName').value='';
-      const { error } = await supabase.from('teams').insert({ game: GAME, name, p1:0,p2:0,p3:0,p4:0,p5:0 });
-      if(error){ console.error(error); alert('Kunde inte lägga till lag – kontrollera "teams"-tabell och policies.'); }
-      await loadTeams();
+      const { error } = await sb(supabase.from('teams').insert({ game: GAME, name, p1:0,p2:0,p3:0,p4:0,p5:0 }), 'insert team');
+      if(!error){ await loadTeams(); }
     });
 
     el('#saveHeaders').addEventListener('click', async ()=>{
       const payload = { game: GAME, h1: el('#h1').value||null, h2: el('#h2').value||null, h3: el('#h3').value||null, h4: el('#h4').value||null, h5: el('#h5').value||null };
-      const { error } = await supabase.from('headers').upsert(payload, { onConflict: 'game' });
-      if(error){ console.error(error); alert('Kunde inte spara grennamn.'); }
-      await loadHeaders();
+      const { error } = await sb(supabase.from('headers').upsert(payload, { onConflict: 'game' }), 'save headers');
+      if(!error){ await loadHeaders(); }
     });
 
-    // Poäng + namn i tabellen
     tbody.addEventListener('input', debounce(async (ev)=>{
       const t = ev.target; const id=t.getAttribute('data-id'); if(!id) return;
-      if(t.classList.contains('pts')){ const i=t.getAttribute('data-gren'); const val=Number(t.value)||0; await supabase.from('teams').update({['p'+i]:val}).eq('id',id).eq('game',GAME); }
-      if(t.classList.contains('team-name')){ await supabase.from('teams').update({ name:t.value }).eq('id',id).eq('game',GAME); }
+      if(t.classList.contains('pts')){ const i=t.getAttribute('data-gren'); const val=Number(t.value)||0; await sb(supabase.from('teams').update({['p'+i]:val}).eq('id',id).eq('game',GAME), 'update points'); }
+      if(t.classList.contains('team-name')){ await sb(supabase.from('teams').update({ name:t.value }).eq('id',id).eq('game',GAME), 'update team name'); }
     },180));
 
     tbody.addEventListener('click', async (ev)=>{
       const b=ev.target.closest('button.del'); if(!b) return; const id=b.getAttribute('data-id');
-      if(!confirm('Ta bort detta lag?')) return; await supabase.from('teams').delete().eq('id',id).eq('game',GAME);
+      if(!confirm('Ta bort detta lag?')) return; await sb(supabase.from('teams').delete().eq('id',id).eq('game',GAME), 'delete team');
     });
 
     // QR
@@ -194,25 +237,21 @@
     document.getElementById('genQrBtn').addEventListener('click', ()=>{ drawQR(el('#shareLink').textContent, qrBox); dlBtn.disabled=false; });
     dlBtn.addEventListener('click', ()=>{ const c=qrBox.querySelector('canvas'); if(!c) return; const a=document.createElement('a'); a.href=c.toDataURL('image/png'); a.download='5kamp-QR.png'; a.click(); });
 
-    // --- Supabase helpers ---
+    // Supabase helpers
     function updateShareLink(){ const s=new URL(location.href); s.searchParams.set('game', GAME); el('#shareLink').textContent=s.toString(); }
-
-    async function ensureHeaderRow(){ await supabase.from('headers').upsert({ game: GAME }, { onConflict:'game' }); }
-
+    async function ensureHeaderRow(){ await sb(supabase.from('headers').upsert({ game: GAME }, { onConflict:'game' }), 'ensure header row'); }
     async function loadHeaders(){
-      const { data } = await supabase.from('headers').select('*').eq('game',GAME).maybeSingle();
+      const { data, error } = await sb(supabase.from('headers').select('*').eq('game',GAME).maybeSingle(), 'load headers');
+      if(error) return;
       const h=[data?.h1,data?.h2,data?.h3,data?.h4,data?.h5];
       for(let i=1;i<=5;i++){ const v=h[i-1]||DEFAULT_HEADERS[i-1]; document.getElementById('hth'+i).textContent=v; el('#h'+i).value=v; }
     }
-
     async function loadTeams(){
-      const { data, error } = await supabase.from('teams').select('*').eq('game',GAME);
-      if(error){ console.error(error); return; }
-      renderTeams(data||[]);
+      const { data, error } = await sb(supabase.from('teams').select('*').eq('game',GAME), 'load teams');
+      if(error) return; renderTeams(data||[]);
     }
-
     function renderTeams(list){
-      list.sort((a,b)=> teamTotal(b)-teamTotal(a) || a.name.localeCompare(b.name));
+      list.sort((a,b)=> teamTotal(b)-teamTotal(a) || (a.name||'').localeCompare(b.name||''));
       tbody.innerHTML=''; summaryList.innerHTML='';
       list.forEach((t,idx)=>{
         const tr=document.createElement('tr');
@@ -221,7 +260,7 @@
           <td><input data-id="${t.id}" class="team-name input-pts" style="width:170px;text-align:left" value="${escapeHtml(t.name||'')}"/></td>
           ${[1,2,3,4,5].map(i=>`<td><input class="input-pts pts" data-id="${t.id}" data-gren="${i}" type="number" min="0" step="1" value="${Number(t['p'+i])||0}"/></td>`).join('')}
           <td><strong>${teamTotal(t)}</strong></td>
-          <td><button class="btn del" data-id="${t.id}">Ta bort</button></td>`;
+          <td><button class="btn danger del" data-id="${t.id}">Ta bort</button></td>`;
         tbody.appendChild(tr);
       });
       const sorted=[...list].sort((a,b)=>teamTotal(b)-teamTotal(a));
@@ -235,12 +274,55 @@
       channel = supabase.channel('live_'+GAME)
         .on('postgres_changes',{event:'*',schema:'public',table:'teams',filter:`game=eq.${GAME}`},()=>loadTeams())
         .on('postgres_changes',{event:'*',schema:'public',table:'headers',filter:`game=eq.${GAME}`},()=>loadHeaders())
-        .subscribe();
+        .subscribe(()=>{});
     }
 
-    // Start
+    // Diagnostik (testfall)
+    const logBox = el('#diagLog');
+    function logLine(label, obj){ const ts = new Date().toLocaleTimeString(); logBox.textContent += `[${ts}] ${label}: ${safeStringify(obj)}\n`; logBox.scrollTop = logBox.scrollHeight; }
+    let lastTestId = null;
+
+    document.getElementById('testSelect').addEventListener('click', async ()=>{
+      const res = await sb(supabase.from('teams').select('*').limit(3), 'TEST SELECT');
+      logLine('SELECT teams', res.error || res.data);
+    });
+    document.getElementById('testInsert').addEventListener('click', async ()=>{
+      const name = `DiagTest-${Date.now()%100000}`;
+      const { data, error } = await sb(supabase.from('teams').insert({ game:'DEBUG', name, p1:1,p2:2,p3:3,p4:4,p5:5 }).select('*').single(), 'TEST INSERT');
+      if(!error){ lastTestId = data?.id || null; }
+      logLine('INSERT teams', error || data);
+    });
+    document.getElementById('testUpdate').addEventListener('click', async ()=>{
+      if(!lastTestId){ logLine('UPDATE teams', 'Kör INSERT-test först.'); return; }
+      const { data, error } = await sb(supabase.from('teams').update({ name:'DiagTest-UPDATED' }).eq('id', lastTestId).eq('game','DEBUG').select('*').single(), 'TEST UPDATE');
+      logLine('UPDATE teams', error || data);
+    });
+    document.getElementById('testDelete').addEventListener('click', async ()=>{
+      if(!lastTestId){ logLine('DELETE teams', 'Kör INSERT-test först.'); return; }
+      const { data, error } = await sb(supabase.from('teams').delete().eq('id', lastTestId).eq('game','DEBUG').select('*'), 'TEST DELETE');
+      logLine('DELETE teams', error || data);
+      if(!error) lastTestId = null;
+    });
+    document.getElementById('testHdrUpsert').addEventListener('click', async ()=>{
+      const payload = { game:'DEBUG', h1:'Kast', h2:'Hopp', h3:'Sprint', h4:'Skytte', h5:'Quiz' };
+      const { data, error } = await sb(supabase.from('headers').upsert(payload, { onConflict:'game' }).select('*').single(), 'TEST UPSERT headers');
+      logLine('UPSERT headers', error || data);
+    });
+    document.getElementById('testHdrSelect').addEventListener('click', async ()=>{
+      const { data, error } = await sb(supabase.from('headers').select('*').eq('game','DEBUG').maybeSingle(), 'TEST SELECT headers');
+      logLine('SELECT headers', error || data);
+    });
+    document.getElementById('clearDiag').addEventListener('click', ()=>{ logBox.textContent=''; });
+
     (async function init(){
-      await ensureHeaderRow(); subscribeRealtime(); await loadHeaders(); await loadTeams();
+      const configOk = SUPABASE_URL.startsWith('https://') && SUPABASE_ANON_KEY && !SUPABASE_ANON_KEY.includes('YOUR-ANON-KEY');
+      if(!configOk){
+        reportError({ code:'CONFIG', status:'-', message:'SUPABASE_URL / ANON KEY saknas eller är placeholders', details:'Gå till Settings → API i Supabase och klistra in dina riktiga värden i filen.' }, 'configuration');
+      }
+      await ensureHeaderRow();
+      subscribeRealtime();
+      await loadHeaders();
+      await loadTeams();
     })();
   </script>
 </body>
