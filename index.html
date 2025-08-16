@@ -222,11 +222,20 @@
     }
 
     el('#saveHeaders').addEventListener('click', async ()=>{
-      const payload = { game: GAME, h1: el('#h1').value||null, h2: el('#h2').value||null, h3: el('#h3').value||null, h4: el('#h4').value||null, h5: el('#h5').value||null };
+      const payload = { 
+        game: GAME, 
+        h1: el('#h1').value||null, 
+        h2: el('#h2').value||null, 
+        h3: el('#h3').value||null, 
+        h4: el('#h4').value||null, 
+        h5: el('#h5').value||null
+      };
       const { error } = await supabase.from('headers').upsert(payload, { onConflict: 'game' });
-      if(error){ console.error(error); alert('Kunde inte spara grennamn.'); }
+      if(error){ 
+        console.error(error); alert('Kunde inte spara grennamn.');
+      }
       await loadHeaders();
-    );
+    });
 
     async function loadTeams(){
       const { data, error } = await supabase.from('teams').select('*').eq('game', GAME);
